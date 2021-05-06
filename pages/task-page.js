@@ -5,25 +5,25 @@ import { getAllTasksData } from "../lib/tasks";
 import Task from "../components/Task";
 import useSWR from "swr";
 import StateContextProvider from "../context/StateContext";
+import TaskForm from "../components/TaskForm";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 const apiUrl = `${process.env.NEXT_PUBLIC_RESTAPI_URL}api/list-task/`;
 
-export default function TaskPage({ staticfilteredTasks }) {
+export default function TaskPage({ staticfilterdTasks }) {
   const { data: tasks, mutate } = useSWR(apiUrl, fetcher, {
-    initialData: staticfilteredTasks,
+    initialData: staticfilterdTasks,
   });
   const filteredTasks = tasks?.sort(
     (a, b) => new Date(b.created_at) - new Date(a.created_at)
   );
-
   useEffect(() => {
     mutate();
   }, []);
-
   return (
     <StateContextProvider>
       <Layout title="Task page">
+        <TaskForm taskCreated={mutate} />
         <ul>
           {filteredTasks &&
             filteredTasks.map((task) => (
@@ -33,11 +33,11 @@ export default function TaskPage({ staticfilteredTasks }) {
         <Link href="/main-page">
           <div className="flex cursor-pointer mt-12">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 mr-3"
+              className="w-6 h-6 mr-3"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
@@ -54,10 +54,10 @@ export default function TaskPage({ staticfilteredTasks }) {
   );
 }
 export async function getStaticProps() {
-  const staticfilteredTasks = await getAllTasksData();
+  const staticfilterdTasks = await getAllTasksData();
 
   return {
-    props: { staticfilteredTasks },
+    props: { staticfilterdTasks },
     revalidate: 3,
   };
 }
